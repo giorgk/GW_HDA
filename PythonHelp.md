@@ -2,6 +2,17 @@
 [Houdini python API](https://www.sidefx.com/docs/houdini/hom/hou/index.html)
 
 ## Basic Stuff
+### Structure of python code in a python node
+First define the required functions and call them under main
+```
+def main():
+    print "Hello"
+    
+
+main()
+``` 
+
+
 ### Access node properties
 To read a node property in a python node use:
 ```
@@ -42,6 +53,12 @@ for example to check for tab, space and endline use
 import re
 temp = re.split('\t | |\n',line)
 ```
+### Convert splitted string to numbers
+The splitted string is an array
+```
+i = int(temp[0])
+f = float(temp[1])
+```
 ### Convert number to string
 - Simple
 ```
@@ -57,6 +74,25 @@ If `temp` is a list that contains empty elements these can be removed using
 ```
 temp = list(filter(None, temp))
 ```
+
+### Write files
+Open file for reading. Don't forget to close it
+```
+f = open(filename,'w')
+f.write(str(x) + " " + str(y) + " " + str(z) + "\n")
+f.close()
+```
+### Loop through geometry
+* Points : See [iterPoints](https://www.sidefx.com/docs/houdini/hom/hou/Geometry.html) function
+```
+for point in geo.points():
+    x = point.position()[0]
+    y = point.position()[2]
+    z = point.position()[1]
+```
+
+
+
 
 ## Create Geometry
 ### Points
@@ -89,10 +125,28 @@ etc...
 poly.setAttribValue("ID", 123)
 poly.setAttribValue("Rch", 0.004)
 ```
-The `point` input argument of `addVertex` is the output of `geo.createPoint()`. Most of the times first you should make a list of points first
+The `point` input argument of `addVertex` is the output of `geo.createPoint()`. Most of the times first you make the points and then append to the primitive
+
+### Create Bazier Curve
+This is a bit more difficult compared to points and polygons.
+The command `createBezierCurve` requires the number of points included in the curve. Therefore I typically make an array of hou vectors with the positions, then initialize the curve with points on the origin and then loop through the points of the curve and update the point attibutes. For example
+```
+Plist = [] # This is an empty array
+# populate the array with points
+... loop:
+    Plist.append(hou.Vector3(x, y, z))
+
+# Create the curve
+curve = geo.createBezierCurve(len(Plist),False,2)
+# set the curve point position and any other attibute
+i = 0
+for p in curve.points():
+    p.setPosition(Plist[i])
+    i = i + 1
+```
+
 ### Add global attributes
 ```
 geo.addAttrib(hou.attribType.Global, "NL", 0); # define attribute
 geo.setGlobalAttribValue("NL", NL) # Set value
 ```
-
