@@ -91,6 +91,18 @@ for point in geo.points():
     z = point.position()[1]
 ```
 
+### Loop through primitives and points
+An example to iterate through the primitives of a geometry and then loop through the points of each primitives to read the coordinates
+```
+for prim in geo.prims():
+    n = prim.numVertices()
+    coords = prim.vertices()
+    for v in coords:
+        X = v.point()
+        XX = X.position()
+        f.write(str(XX.x()) + " " + str(XX.z()) + "\n")
+
+```
 
 
 
